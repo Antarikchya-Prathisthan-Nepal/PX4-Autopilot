@@ -101,7 +101,7 @@ if(EXISTS ${BOARD_DEFCONFIG})
 			string(REPLACE "${Name}=" "" Value ${NameAndValue})
 			string(REPLACE "CONFIG_USER_" "" module ${Name})
 			string(TOLOWER ${module} module)
-			list(APPEND config_user_list ${module})
+			list(APPEND config_user_list user/${module})
 		endif()
 
 		# Find variable name

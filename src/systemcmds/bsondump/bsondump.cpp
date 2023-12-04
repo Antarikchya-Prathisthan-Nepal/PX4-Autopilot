@@ -89,6 +89,7 @@ extern "C" __EXPORT int bsondump_main(int argc, char *argv[])
 
 	} else {
 		char *file_name = argv[1];
+		PX4_INFO("Reading File '%s' ", file_name);
 
 		if (file_name) {
 			int fd = open(file_name, O_RDONLY);

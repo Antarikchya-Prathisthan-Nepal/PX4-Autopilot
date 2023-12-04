@@ -32,9 +32,10 @@
 ############################################################################
 
 px4_add_module(
-	MODULE user_mt25ql_flash
-	MAIN mt25ql_flash
+	MODULE user_mylogger
+	MAIN mylogger
 	SRCS
-		mt25ql_flash.cpp
+		mylogger_main.cpp
+	DEPENDS
 	)
 

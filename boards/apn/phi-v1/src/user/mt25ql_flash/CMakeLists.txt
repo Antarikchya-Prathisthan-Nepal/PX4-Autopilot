@@ -1,6 +1,6 @@
 ############################################################################
 #
-#   Copyright (c) 2015 PX4 Development Team. All rights reserved.
+#   Copyright (c) 2018 PX4 Development Team. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -31,24 +31,11 @@
 #
 ############################################################################
 
-add_library(drivers_board
-	# can.c
-	# i2c.cpp
-	init.c
-	# led.c
-	mtd.cpp
-	spi.cpp
-	timer_config.cpp
-	usb.c
-)
+px4_add_module(
+	MODULE user_mt25ql_flash
+	MAIN mt25ql_flash
+	SRCS
+		mt25ql_flash.cpp
+		# mt25ql_nxffs.c
+	)
 
-target_link_libraries(drivers_board
-	PRIVATE
-		arch_spi
-		# drivers__led # drv_led_start
-		nuttx_arch # sdio
-		nuttx_drivers # sdio
-		px4_layer
-)
-
-# set(USER_MODULE custom_modules/mylogger)

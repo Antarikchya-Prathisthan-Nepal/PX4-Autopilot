@@ -1,0 +1,5 @@
+menuconfig USER_MYLOGGER
+	bool "mylogger"
+	default n
+	---help---
+		Disable support for mylogger

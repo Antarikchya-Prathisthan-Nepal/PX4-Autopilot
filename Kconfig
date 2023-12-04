@@ -207,5 +207,5 @@ source "platforms/common/Kconfig"
 endmenu
 
 menu "user"
-source "boards/apn/phi-v1/user/Kconfig"
+source "boards/apn/phi-v1/src/user/Kconfig"
 endmenu

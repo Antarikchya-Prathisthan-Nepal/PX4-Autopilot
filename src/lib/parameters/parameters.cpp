@@ -806,7 +806,7 @@ param_load_default()
 	if (!filename) {
 		return flash_param_load();
 	}
-
+	PX4_INFO("File to Open: '%s' ", filename);
 	int fd_load = ::open(filename, O_RDONLY);
 
 	if (fd_load < 0) {

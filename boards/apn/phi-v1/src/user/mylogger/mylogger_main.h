@@ -1,6 +1,6 @@
 /****************************************************************************
  *
- *   Copyright (C) 2022 PX4 Development Team. All rights reserved.
+ *   Copyright (c) 2018 PX4 Development Team. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -30,92 +30,70 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *
  ****************************************************************************/
+
+#pragma once
+
+#include <px4_platform_common/module.h>
+#include <px4_platform_common/module_params.h>
+#include <uORB/SubscriptionInterval.hpp>
+#include <uORB/topics/parameter_update.h>
 #include <nuttx/config.h>
 #include <nuttx/fs/fs.h>
 #include <nuttx/mtd/mtd.h>
 #include <nuttx/fs/nxffs.h>
 #include <sys/mount.h>
+#include <fcntl.h>
+#include <syslog.h>
+using namespace time_literals;
 
-#include <nuttx/spi/spi.h>
-#include <px4_platform_common/px4_manifest.h>
-#include <../../platforms/nuttx/NuttX/nuttx/include/nuttx/mtd/smart.h>
-// #include "../../platforms/nuttx/NuttX/nuttx/drivers/mtd/smart.c"
-// #include <nuttx/fs/smart.h>
+extern "C" __EXPORT int mylogger_main(int argc, char *argv[]);
 
-//                                                              KiB BS    nB
-static const px4_mft_device_t spi3 = {             // MT25QL on FMUM 1Gb 2048 X 64K
-	.bus_type = px4_mft_device_t::SPI,
-	.devid    = SPIDEV_FLASH(0)
-};
-static const px4_mft_device_t spi4 = {             // MT25QL on FMUM 1Gb 2048 X 64K
-	.bus_type = px4_mft_device_t::SPI,
-	.devid    = SPIDEV_FLASH(0)
-};
 
-static const px4_mtd_entry_t phi_mfm = {
-	.device = &spi3,
-	.npart = 2,
-	.partd = {
-		{
-			.type = MTD_PARAMETERS,
-			.path = "/fs/mtd_params",
-			.nblocks = 128		// this is no of pages to provide
-		},
-		{
-			.type = MTD_MAINSTORAGE,
-			.path = "/fs/mtd_mainstorage",
-			.nblocks= 51200		// 12.5MB in no of pages, each page having 256 bytes
-		}
-	},
-};
-
-static const px4_mtd_entry_t phi_sfm = {
-	.device = &spi4,
-	.npart = 3,
-	.partd = {
-		{
-			.type = MTD_NET,
-			.path = "/fs/mtd_net",
-			.nblocks = 128
-
-		},
-		{
-			.type = MTD_MFT_VER,
-			.path = "/fs/mtd_mft_ver",
-			.nblocks = 128
-		},
-		{
-			.type = MTD_TEST_BLK,
-			.path = "/fs/mtd_test_blk",
-			.nblocks = 1280
-		}
-
-	},
-};
-
-static const px4_mtd_manifest_t board_mtd_config = {
-	.nconfigs   = 2,
-	.entries = {
-		&phi_mfm,
-		&phi_sfm,
-	}
-};
-
-static const px4_mft_entry_s mtd_mft = {
-	.type = MTD,
-	.pmft = (void *) &board_mtd_config,
-};
-
-static const px4_mft_s mft = {
-	.nmft = 1,
-	.mfts = {
-		&mtd_mft
-	}
-};
-
-const px4_mft_s *board_get_manifest(void)
+class Mylogger : public ModuleBase<Mylogger>, public ModuleParams
 {
-	return &mft;
-}
+public:
+	Mylogger(int example_param, bool example_flag);
+
+	virtual ~Mylogger() = default;
+
+	/** @see ModuleBase */
+	static int task_spawn(int argc, char *argv[]);
+
+	/** @see ModuleBase */
+	static Mylogger *instantiate(int argc, char *argv[]);
+
+	/** @see ModuleBase */
+	static int custom_command(int argc, char *argv[]);
+
+	/** @see ModuleBase */
+	static int print_usage(const char *reason = nullptr);
+
+	/** @see ModuleBase::run() */
+	void run() override;
+
+	/** @see ModuleBase::print_status() */
+	int print_status() override;
+
+private:
+
+	/**
+	 * Check for parameter changes and update them if needed.
+	 * @param parameter_update_sub uorb subscription to parameter_update
+	 * @param force for a parameter update
+	 */
+	void parameters_update(bool force = false);
 
 
+	DEFINE_PARAMETERS(
+		(ParamInt<px4::params::SYS_AUTOSTART>) _param_sys_autostart,   /**< example parameter */
+		(ParamInt<px4::params::SYS_AUTOCONFIG>) _param_sys_autoconfig  /**< another parameter */
+	)
+
+	// Subscriptions
+	uORB::SubscriptionInterval _parameter_update_sub{ORB_ID(parameter_update), 1_s};
+
+};
+
+void initialize_and_mount_smartfs_for_logging(int mtd_instance, const char *block_path, const char *mtd_partName);
+
+void write_data_to_smartfs(const char *path, const char *data);
