@@ -51,18 +51,18 @@ int Mylogger::print_status()
 
 int Mylogger::custom_command(int argc, char *argv[])
 {
-	/*
+
 	if (!is_running()) {
 		print_usage("not running");
 		return 1;
 	}
 
 	// additional custom commands can be handled like this:
-	if (!strcmp(argv[0], "do-something")) {
-		get_instance()->do_something();
-		return 0;
-	}
-	 */
+	// if (!strcmp(argv[0], "do-something")) {
+	// 	get_instance()->do_something();
+	// 	return 0;
+	// }
+
 
 	return print_usage("unknown command");
 }
@@ -71,6 +71,7 @@ int Mylogger::custom_command(int argc, char *argv[])
 int Mylogger::task_spawn(int argc, char *argv[])
 {
 	PX4_INFO("Starting mylogger module");
+	px4_sleep(4);
 	_task_id = px4_task_spawn_cmd("mylogger",
 				      SCHED_DEFAULT,
 				      SCHED_PRIORITY_DEFAULT,
@@ -85,7 +86,7 @@ int Mylogger::task_spawn(int argc, char *argv[])
 
 	//calling SmartFS Initialization for logging
 	PX4_INFO("Initializing SmartFS on /dev/mtdblock1, on MTD partition, mtd_mainstorage");
-	initialize_and_mount_smartfs_for_logging(_task_id, "/dev/mtdblock1", "mtd_mainstorage");
+	initialize_and_mount_smartfs_for_logging(0, "/dev/mtdblock1", "blk1");
 
 	return 0;
 }
@@ -231,33 +232,79 @@ int mylogger_main(int argc, char *argv[])
 
 
 // Function to initialize and mount SmartFS for data logging
-void initialize_and_mount_smartfs_for_logging(int mtd_instance, const char *block_path, const char *mtd_partName)
+void initialize_and_mount_smartfs_for_logging(int mtd_instance,
+						unsigned int partno,
+						unsigned int smart_part)
 {
     int mtd_fd;
     int ret;
+    unsigned int num_instance;
+
+    mtd_instance_s **instance = px4_mtd_get_instances(&num_instance);
+    syslog(LOG_INFO, "[mylogger] reading available MTD instances\n");
+    syslog(LOG_INFO, " [mylogger] No of instances: %i\n", num_instance);
+
+    if(instance) {
+	for (unsigned int i=0; i < num_instance; ++i) {
+		if(instance[i]->mtd_dev) {
+			syslog(LOG_INFO, "[mylogger] Flash Instance"
+				" %i:\n", i);
+			syslog(LOG_INFO, "[mylogger] No of Available"
+				" partitions: %i\n", instance[i]->n_partitions_current);
+			for (unsigned int p = 0; p < instance[i]->n_partitions_current; ++p) {
+				syslog(LOG_INFO, "        Partition no: %i\n", p);
+				syslog(LOG_INFO, "        Name: %s\n", instance[i]->partition_names[p]);
+				syslog(LOG_INFO, "        Partition Block count (256bytes): %i\n", instance[i]->partition_block_counts[p]);
+			}
+			syslog(LOG_INFO, "[mylogger] Flash Device ID: %lx\n",  instance[i]->devid);
+		}
+	}
+    }
+    px4_sleep(4);
 
     // Initialize MTD
-    mtd_fd = open(block_path, O_RDWR);
+    mtd_fd = open((const char *)instance[mtd_instance]->partition_names[partno], O_RDWR);
     if (mtd_fd < 0) {
-        syslog(LOG_ERR,"Error opening MTD device");
+        syslog(LOG_ERR,"[mylogger] Error opening MTD device\n");
         return;
+    }
+    else
+    {
+	syslog(LOG_INFO, "[mylogger] MTD device %i, Partition '%s' opened\n", mtd_instance, instance[mtd_instance]->partition_names[partno]);
+
     }
 
     // Initialize SMARTFS
-    ret = smart_initialize(mtd_instance, (FAR struct mtd_dev_s *)&mtd_fd, mtd_partName);
+    syslog(LOG_INFO, "[mylogger] Initalizing SMARTFS,on mtd device %i,"
+    			"on mtd_partition:, '%s'\n", mtd_instance,
+			mtd_partName);
+    px4_sleep(2);
+    const char smart_partName[];
+    sprintf(smart_partName, )
+    ret = smart_initialize(mtd_instance, instance[mtd_instance]->part_dev[partno], smart_part);
     if (ret != OK) {
-        syslog(LOG_ERR,"Error initializing SMARTFS");
+        syslog(LOG_ERR,"Error initializing SMARTFS\n");
         close(mtd_fd);
         return;
+    }
+    else
+    {
+	syslog(LOG_INFO, "SMARTFS Initialized\n");
+	px4_sleep(2);
     }
 
     // Mount SMARTFS on the main storage partition
     ret = mount(NULL, "/mnt/smartfs", "smartfs", 0, NULL);
     if (ret != OK) {
-        syslog(LOG_ERR,"Error mounting SMARTFS");
+        syslog(LOG_ERR,"Error mounting SMARTFS\n");
         // smart_uninitialize(mtd_fd);
         close(mtd_fd);
         return;
+    }
+    else
+    {
+	syslog(LOG_INFO, "Mounted SMARTFS\n");
+	px4_sleep(2);
     }
 
     // Perform logging operations with SmartFS
@@ -266,7 +313,8 @@ void initialize_and_mount_smartfs_for_logging(int mtd_instance, const char *bloc
     // Unmount SMARTFS
     ret = umount("/mnt/smartfs");
     if (ret != OK) {
-        syslog(LOG_ERR,"Error unmounting SMARTFS");
+        syslog(LOG_ERR,"Error unmounting SMARTFS\n");
+	px4_sleep(2);
     }
 
     // Uninitialize SMARTFS

@@ -39,8 +39,7 @@
 #include <nuttx/spi/spi.h>
 #include <px4_platform_common/px4_manifest.h>
 #include <../../platforms/nuttx/NuttX/nuttx/include/nuttx/mtd/smart.h>
-// #include "../../platforms/nuttx/NuttX/nuttx/drivers/mtd/smart.c"
-// #include <nuttx/fs/smart.h>
+
 
 //                                                              KiB BS    nB
 static const px4_mft_device_t spi3 = {             // MT25QL on FMUM 1Gb 2048 X 64K

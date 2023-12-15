@@ -42,8 +42,10 @@
 #include <nuttx/mtd/mtd.h>
 #include <nuttx/fs/nxffs.h>
 #include <sys/mount.h>
+#include <nuttx/mtd/smart.h>
 #include <fcntl.h>
 #include <syslog.h>
+#include <px4_platform_common/px4_mtd.h>
 using namespace time_literals;
 
 extern "C" __EXPORT int mylogger_main(int argc, char *argv[]);
@@ -94,6 +96,6 @@ private:
 
 };
 
-void initialize_and_mount_smartfs_for_logging(int mtd_instance, const char *block_path, const char *mtd_partName);
+void initialize_and_mount_smartfs_for_logging(int mtd_instance, unsigned int partno, const char *mtd_partName);
 
 void write_data_to_smartfs(const char *path, const char *data);
