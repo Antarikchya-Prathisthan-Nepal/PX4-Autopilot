@@ -206,4 +206,8 @@ depends on PLATFORM_QURT || PLATFORM_POSIX
 source "platforms/common/Kconfig"
 endmenu
 
+menu "user"
+source "boards/apn/phi-v1/src/user/Kconfig"
+endmenu
+
 source "src/lib/*/Kconfig"

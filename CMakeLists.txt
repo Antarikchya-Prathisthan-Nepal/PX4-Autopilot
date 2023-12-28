@@ -431,6 +431,9 @@ foreach(module ${config_module_list})
 	add_subdirectory(src/${module})
 endforeach()
 
+foreach(usr_module ${config_user_list})
+	add_subdirectory(${PX4_BOARD_DIR}/src/${usr_module})
+endforeach()
 # add events lib after modules and libs as it needs to know all source files (PX4_SRC_FILES)
 add_subdirectory(src/lib/events EXCLUDE_FROM_ALL)
 # metadata needs PX4_MODULE_CONFIG_FILES
