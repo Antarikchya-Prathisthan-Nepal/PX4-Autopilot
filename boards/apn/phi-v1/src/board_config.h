@@ -107,11 +107,21 @@
 
 #define GPIO_SFM_MODE			(GPIO_OUTPUT|GPIO_FLOAT|GPIO_SPEED_2MHz|GPIO_OUTPUT_SET|GPIO_PORTE|GPIO_PIN9)
 #define GPIO_MUX_EN			(GPIO_OUTPUT|GPIO_FLOAT|GPIO_SPEED_2MHz|GPIO_OUTPUT_CLEAR|GPIO_PORTE|GPIO_PIN10)
-/* Tone alarm output. */
-// #define TONE_ALARM_TIMER             2    /* timer 2 */
-// #define TONE_ALARM_CHANNEL           1    /* channel 1 */
-// #define GPIO_TONE_ALARM_IDLE         (GPIO_OUTPUT|GPIO_PUSHPULL|GPIO_SPEED_2MHz|GPIO_OUTPUT_CLEAR|GPIO_PORTA|GPIO_PIN15)
-// #define GPIO_TONE_ALARM              (GPIO_ALT|GPIO_AF1|GPIO_SPEED_2MHz|GPIO_PUSHPULL|GPIO_PORTA|GPIO_PIN15)
+
+#define MFMROOTDIR			"/mnt/fs/mfm"
+#define BRDMFM_PARAM			"/fs/mfm/mtd_params"
+#define BRDMFM_HKDIR			MFMROOTDIR "/mtd_mainstorage"
+#define BRDMFM_LOGDIR			MFMROOTDIR "/mtd_sat_log"
+#define BRDMFM_BCONDIR			MFMROOTDIR "/mtd_beacon"
+#define BRDMFM_MSNDIR			MFMROOTDIR "/mtd_mission"
+#define BRDMFM_FLAGDIR			MFMROOTDIR "/mtd_flags"
+#define BRDMFM_RSVDIR			MFMROOTDIR "/mtd_rsv_table"
+
+#define SFMROOTDIR			"/mnt/fs/sfm"
+#define BRDSFM_PARAM			"/fs/sfm/mtd_params"
+#define BRDSFM_LOGDIR			SFMROOTDIR "/mtd_sat_log"
+#define BRDSFM_MSNDIR			SFMROOTDIR "/mtd_mission"
+#define BRDSFM_FLAGDIR			SFMROOTDIR "/mtd_flags"
 
 /**
  * PWM:

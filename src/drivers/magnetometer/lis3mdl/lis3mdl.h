@@ -39,7 +39,7 @@
 
 #pragma once
 
-#include <drivers/device/i2c.h>
+// #include <drivers/device/i2c.h>
 #include <drivers/drv_hrt.h>
 #include <px4_platform_common/i2c_spi_buses.h>
 #include <lib/perf/perf_counter.h>

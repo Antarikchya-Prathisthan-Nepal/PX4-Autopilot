@@ -45,12 +45,13 @@ I2CSPIDriverBase *LIS3MDL::instantiate(const I2CSPIDriverConfig &config, int run
 {
 	device::Device *interface = nullptr;
 
-	if (config.bus_type == BOARD_I2C_BUS) {
-		interface = LIS3MDL_I2C_interface(config);
-
-	} else if (config.bus_type == BOARD_SPI_BUS) {
+	if (config.bus_type == BOARD_SPI_BUS) {
 		interface = LIS3MDL_SPI_interface(config);
+
 	}
+	// else if (config.bus_type == BOARD_I2C_BUS) {
+	// 	interface = LIS3MDL_I2C_interface(config);
+	// }
 
 	if (interface == nullptr) {
 		PX4_ERR("alloc failed");
@@ -101,8 +102,8 @@ extern "C" int lis3mdl_main(int argc, char *argv[])
 	using ThisDriver = LIS3MDL;
 	int ch;
 	BusCLIArguments cli{true, true};
-	cli.i2c_address = LIS3MDLL_ADDRESS;
-	cli.default_i2c_frequency = 400000;
+	// cli.i2c_address = LIS3MDLL_ADDRESS;
+	// cli.default_i2c_frequency = 400000;
 	cli.default_spi_frequency = 11 * 1000 * 1000;
 
 	while ((ch = cli.getOpt(argc, argv, "R:")) != EOF) {

@@ -130,18 +130,10 @@ __EXPORT void board_peripheral_reset(int ms)
 	stm32_gpiowrite(GPIO_SFM_WP, 1);	// disabling hadware WP of flash
 	stm32_gpiowrite(GPIO_SFM_MODE, 0);
 	stm32_gpiowrite(GPIO_MUX_EN, 0);
-	// bool last = stm32_gpioread(GPIO_SPEKTRUM_PWR_EN);
-	// // Keep Spektum on to discharge rail.
-	// stm32_gpiowrite(GPIO_SPEKTRUM_PWR_EN, 1);
 
-	// Wait for the peripheral rail to reach GND.
+
 	usleep(ms * 1000);
 	syslog(LOG_DEBUG, "reset done, %d ms\n", ms);
-
-	// Re-enable power.
-	// Switch the peripheral rail back on.
-	// stm32_gpiowrite(GPIO_SPEKTRUM_PWR_EN, last);
-
 }
 
 /************************************************************************************

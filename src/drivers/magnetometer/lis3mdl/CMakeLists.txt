@@ -35,11 +35,12 @@ px4_add_module(
 	MAIN lis3mdl
 	COMPILE_FLAGS
 	SRCS
-		lis3mdl_i2c.cpp
+		# lis3mdl_i2c.cpp
 		lis3mdl_spi.cpp
 		lis3mdl_main.cpp
 		lis3mdl.cpp
 	DEPENDS
+		drivers__device
 		drivers_magnetometer
 		px4_work_queue
 	)

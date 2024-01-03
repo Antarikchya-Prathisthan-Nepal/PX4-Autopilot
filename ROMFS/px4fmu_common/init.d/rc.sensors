@@ -172,12 +172,6 @@ then
 	ms5525dso start -X
 fi
 
-# TE ASP5033 differential pressure sensor external I2C
-if param compare -s SENS_EN_ASP5033 1
-then
-	asp5033 start -X
-fi
-
 # SHT3x temperature and hygrometer sensor, external I2C
 if param compare -s SENS_EN_SHT3X 1
 then
@@ -205,23 +199,23 @@ then
 	pcf8583 start -X -a 0x51
 fi
 
-# probe for optional external I2C devices
-if param compare SENS_EXT_I2C_PRB 1
-then
-	icm20948_i2c_passthrough -X -q start
+# # probe for optional external I2C devices
+# if param compare SENS_EXT_I2C_PRB 1
+# then
+# 	icm20948_i2c_passthrough -X -q start
 
-	# compasses
-	hmc5883 -T -X -q start
-	ist8308 -X -q start
-	ist8310 -X -q start
-	lis2mdl -X -q start
-	if ! lis3mdl -X -q start
-	then
-		lis3mdl -X -q -a 0x1c start
-	fi
-	qmc5883l -X -q start
-	rm3100 -X -q start
+# 	# compasses
+# 	hmc5883 -T -X -q start
+# 	ist8308 -X -q start
+# 	ist8310 -X -q start
+# 	lis2mdl -X -q start
+# 	if ! lis3mdl -X -q start
+# 	then
+# 		lis3mdl -X -q -a 0x1c start
+# 	fi
+# 	qmc5883l -X -q start
+# 	rm3100 -X -q start
 
-	# start last (wait for possible icm20948 passthrough mode)
-	ak09916 -X -q start
-fi
+# 	# start last (wait for possible icm20948 passthrough mode)
+# 	ak09916 -X -q start
+# fi

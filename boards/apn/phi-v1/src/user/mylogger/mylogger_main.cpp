@@ -84,10 +84,6 @@ int Mylogger::task_spawn(int argc, char *argv[])
 		return -errno;
 	}
 
-	//calling SmartFS Initialization for logging
-	PX4_INFO("Initializing SmartFS on /dev/mtdblock1, on MTD partition, mtd_mainstorage");
-	initialize_and_mount_smartfs_for_logging(0, "/dev/mtdblock1", "blk1");
-
 	return 0;
 }
 
@@ -145,6 +141,11 @@ void Mylogger::run()
 {
 	// Example: run the loop synchronized to the sensor_combined topic publication
 	int sensor_combined_sub = orb_subscribe(ORB_ID(sensor_combined));
+	int ret;
+	uint8_t data_buff[100];
+	uint8_t read_buff[100];
+	char path[55];
+	sprintf(path, BRDMFM_HKDIR"/file_123.txt");
 
 	px4_pollfd_struct_t fds[1];
 	fds[0].fd = sensor_combined_sub;
@@ -152,8 +153,18 @@ void Mylogger::run()
 
 	// initialize parameters
 	parameters_update(true);
+	int i = 0;
 
 	while (!should_exit()) {
+
+		sprintf((char *) data_buff, "This is test code for Flash operation test. Count %i\n", i);
+		memset(read_buff, '\0', sizeof(read_buff));
+		ret = write_data(path, data_buff, buf_len((char *)data_buff));
+
+		if (ret > 0) {
+			ret = read_data(path, read_buff, buf_len((char *)data_buff));
+			i++;
+		}
 
 		// wait for up to 1000ms for data
 		int pret = px4_poll(fds, (sizeof(fds) / sizeof(fds[0])), 1000);
@@ -176,6 +187,7 @@ void Mylogger::run()
 		}
 
 		parameters_update();
+
 	}
 
 	orb_unsubscribe(sensor_combined_sub);
@@ -231,95 +243,71 @@ int mylogger_main(int argc, char *argv[])
 }
 
 
-// Function to initialize and mount SmartFS for data logging
-void initialize_and_mount_smartfs_for_logging(int mtd_instance,
-						unsigned int partno,
-						unsigned int smart_part)
+int write_data(const char *path, uint8_t *Write_data, size_t data_len)
 {
-    int mtd_fd;
-    int ret;
-    unsigned int num_instance;
+	int ret;
+	struct file   file_1;
+	ret = file_open(&file_1, path, O_RDWR | O_CREAT);
 
-    mtd_instance_s **instance = px4_mtd_get_instances(&num_instance);
-    syslog(LOG_INFO, "[mylogger] reading available MTD instances\n");
-    syslog(LOG_INFO, " [mylogger] No of instances: %i\n", num_instance);
-
-    if(instance) {
-	for (unsigned int i=0; i < num_instance; ++i) {
-		if(instance[i]->mtd_dev) {
-			syslog(LOG_INFO, "[mylogger] Flash Instance"
-				" %i:\n", i);
-			syslog(LOG_INFO, "[mylogger] No of Available"
-				" partitions: %i\n", instance[i]->n_partitions_current);
-			for (unsigned int p = 0; p < instance[i]->n_partitions_current; ++p) {
-				syslog(LOG_INFO, "        Partition no: %i\n", p);
-				syslog(LOG_INFO, "        Name: %s\n", instance[i]->partition_names[p]);
-				syslog(LOG_INFO, "        Partition Block count (256bytes): %i\n", instance[i]->partition_block_counts[p]);
-			}
-			syslog(LOG_INFO, "[mylogger] Flash Device ID: %lx\n",  instance[i]->devid);
-		}
+	if (ret < 0) {
+		PX4_INFO("[mylogger] write_data: file_open err, file with path %s; err: %d", path, ret);
+		return ret;
 	}
-    }
-    px4_sleep(4);
 
-    // Initialize MTD
-    mtd_fd = open((const char *)instance[mtd_instance]->partition_names[partno], O_RDWR);
-    if (mtd_fd < 0) {
-        syslog(LOG_ERR,"[mylogger] Error opening MTD device\n");
-        return;
-    }
-    else
-    {
-	syslog(LOG_INFO, "[mylogger] MTD device %i, Partition '%s' opened\n", mtd_instance, instance[mtd_instance]->partition_names[partno]);
+	PX4_INFO("[mylogger] write_data: File %s opened with read write access.", path);
 
-    }
+	ret = file_write(&file_1, Write_data, data_len);
 
-    // Initialize SMARTFS
-    syslog(LOG_INFO, "[mylogger] Initalizing SMARTFS,on mtd device %i,"
-    			"on mtd_partition:, '%s'\n", mtd_instance,
-			mtd_partName);
-    px4_sleep(2);
-    const char smart_partName[];
-    sprintf(smart_partName, )
-    ret = smart_initialize(mtd_instance, instance[mtd_instance]->part_dev[partno], smart_part);
-    if (ret != OK) {
-        syslog(LOG_ERR,"Error initializing SMARTFS\n");
-        close(mtd_fd);
-        return;
-    }
-    else
-    {
-	syslog(LOG_INFO, "SMARTFS Initialized\n");
-	px4_sleep(2);
-    }
+	if (ret < 0) {
+		PX4_INFO("[mylogger] write_data: file_write err: %d to %s.", ret, path);
+		file_close(&file_1);
+		return ret;
 
-    // Mount SMARTFS on the main storage partition
-    ret = mount(NULL, "/mnt/smartfs", "smartfs", 0, NULL);
-    if (ret != OK) {
-        syslog(LOG_ERR,"Error mounting SMARTFS\n");
-        // smart_uninitialize(mtd_fd);
-        close(mtd_fd);
-        return;
-    }
-    else
-    {
-	syslog(LOG_INFO, "Mounted SMARTFS\n");
-	px4_sleep(2);
-    }
+	} else {
+		PX4_INFO("[mylogger] write_data: %i bytes written to %s.", ret, path);
+	}
 
-    // Perform logging operations with SmartFS
-    // ...
+	file_close(&file_1);
+	return ret;
+}
 
-    // Unmount SMARTFS
-    ret = umount("/mnt/smartfs");
-    if (ret != OK) {
-        syslog(LOG_ERR,"Error unmounting SMARTFS\n");
-	px4_sleep(2);
-    }
+int read_data(const char *path, uint8_t *rd_buff, size_t rd_len)
+{
+	int ret;
+	struct file file_1;
+	ret = file_open(&file_1, path, O_RDOK);
 
-    // Uninitialize SMARTFS
-//     smart_uninitialize(mtd_fd);
+	if (ret < 0) {
+		PX4_INFO("[mylogger] read_data: file open err: %d File path: %s", ret, path);
+		return ret;
+	}
 
-    // Close MTD device
-    close(mtd_fd);
+	PX4_INFO("[mylogger] read_data: file %s opened for reading.", path);
+	ret = file_read(&file_1, rd_buff, rd_len);
+
+	if (ret < 0) {
+		PX4_INFO("[mylogger] read_data: file %s read err: %d", path, ret);
+		file_close(&file_1);
+		return ret;
+	}
+	// else if  (ret == 0) {
+	// 	PX4_INFO("[mylogger] read_data: end of file reached, seeking to start of file for read operation.");
+
+	// }
+	else {
+		PX4_INFO("[mylogger] read_data: Read %d bytes of data.", ret);
+		PX4_INFO("[mylogger] read_data: data red: \n%s", rd_buff);
+	}
+	file_close(&file_1);
+	return ret;
+}
+
+int buf_len(char *buf)
+{
+	int len =0;
+	while ((*buf++ !='\0'))
+	{
+		len++;
+	}
+	return len;
 }
