@@ -1,0 +1,5 @@
+menuconfig EXAMPLES_HK_DATA
+	bool "hk_data"
+	default n
+	---help---
+		Enable support for hk_data

@@ -1,0 +1,20 @@
+#!/bin/sh
+#
+# @name Satellite (No Configuration)
+#
+# @type PHI
+# @class Satellite
+#
+# @output No Motor
+#
+# @maintainer Sushant Dhakal
+#
+# @board apn-phi-v1 exclude
+# @board bitcraze_crazyflie exclude
+#
+
+. ${R}etc/init.d/rc.rover_defaults
+
+param set-default SATELLITE_DEFAULT_CONFIG 1
+
+
