@@ -110,9 +110,9 @@ else
 	# Set the parameter file the board supports params on
 	# MTD device.
 	#
-	if mft query -q -k MTD -s MTD_PARAMETERS -v /fs/mfm/mtd_params
+	if mft query -q -k MTD -s MTD_PARAMETERS -v /fs/mtd_params
 	then
-		set PARAM_FILE /fs/mfm/mtd_params
+		set PARAM_FILE /fs/mtd_params
 	fi
 
 	#
@@ -235,7 +235,7 @@ else
 		if param compare SYS_DM_BACKEND 0
 		then
 			# dataman start default
-			dataman start -f /mnt/fs/mfm/mtd_mainstorage/dataman
+			dataman start -f /fs/dataman
 		fi
 	fi
 
@@ -536,7 +536,7 @@ else
 fi
 
 #
-# Unset all script parameters to free RAM.
+# Unset all script parameters to free RAM.4
 #
 unset R
 unset FCONFIG

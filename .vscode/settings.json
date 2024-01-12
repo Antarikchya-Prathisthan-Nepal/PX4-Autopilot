@@ -128,5 +128,7 @@
         "yaml.schemas": {
                 "${workspaceFolder}/validation/module_schema.yaml": "${workspaceFolder}/src/modules/*/module.yaml"
         },
-        "ros.distro": "humble"
+        "ros.distro": "humble",
+        "cortex-debug.gdbPath": "/usr/bin/gdb",
+        "cortex-debug.gdbPath.linux": "/usr/bin/gdb"
 }

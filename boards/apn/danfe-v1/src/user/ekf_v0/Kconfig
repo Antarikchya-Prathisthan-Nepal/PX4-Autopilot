@@ -1,0 +1,5 @@
+menuconfig USER_EKF_V0
+	bool "ekf_estimator"
+	default n
+	---help---
+		Enable support for ekf estimator for Attitude determination
