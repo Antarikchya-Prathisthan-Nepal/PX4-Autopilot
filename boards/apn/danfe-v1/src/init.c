@@ -290,18 +290,13 @@ __EXPORT int board_app_initialize(uintptr_t arg)
 
 	if (!spi2) {
 		syslog(LOG_ERR, "[boot] FAILED to initialize SPI port 2\n");
-		// led_on(LED_RED);
+	} else {
+		syslog(LOG_INFO, "[boot] Initialized SPI port 2\n");
+		// Default SPI2 to 1MHz, ADC
+		SPI_SETFREQUENCY(spi2, 10000000);
+		SPI_SETBITS(spi2, 8);
+		SPI_SETMODE(spi2, SPIDEV_MODE0);
 	}
-
-	/**
-	 * Default SPI2 to 12MHz and de-assert the known chip selects.
-	 * MS5611 has max SPI clock speed of 20MHz.
-	 */
-
-	// XXX start with 10.4 MHz and go up to 20 once validated.
-	SPI_SETFREQUENCY(spi2, 20 * 1000 * 1000);
-	SPI_SETBITS(spi2, 8);
-	SPI_SETMODE(spi2, SPIDEV_MODE3);
 
 #if defined(CONFIG_STM32_SPI4)
 

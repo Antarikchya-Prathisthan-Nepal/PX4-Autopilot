@@ -107,6 +107,8 @@ class AirframeGroup(object):
             return "Balloon"
         elif (self.type == "Vectored 6 DOF UUV"):
             return "Vectored6DofUUV"
+        elif (self.type == "PHI"):
+            return "PHI-Satellite"
         return "AirframeUnknown"
 
     def GetAirframes(self):

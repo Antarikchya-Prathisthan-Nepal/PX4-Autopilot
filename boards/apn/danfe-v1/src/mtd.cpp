@@ -65,15 +65,20 @@ static const px4_mft_device_t spi2 = {             // MT25QL on FMUM 1Gb 2048 X 
 	.devid    = SPIDEV_FLASH(0)
 };
 
-static const px4_mtd_entry_t dnfe_FRAM = {
+static const px4_mtd_entry_t dnfe_FM = {
 	.device = &spi2,
-	.npart = 1,
+	.npart = 2,
 	.partd = {
+		{
+			.type = MTD_PARAMETERS,
+			.path = "/fs/mtd_params",
+			.nblocks = 128
+		},
 		{
 			.type = MTD_MAINSTORAGE,		// storage space for  HKData logging
 			.path = "/fs/mtd_mainstorage",
-			// .nblocks = 51200				// 12.5MB in no of pages, each page having 256 bytes
-			.nblocks = 128
+			.nblocks = 54160				// 12.5MB in no of pages, each page having 256 bytes
+			// .nblocks = 128
 		}
 	},
 };
@@ -81,7 +86,7 @@ static const px4_mtd_entry_t dnfe_FRAM = {
 static const px4_mtd_manifest_t board_mtd_config = {
 	.nconfigs   = 1,
 	.entries = {
-		&dnfe_FRAM
+		&dnfe_FM
 	}
 };
 

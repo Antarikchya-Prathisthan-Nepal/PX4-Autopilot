@@ -65,6 +65,12 @@ int ekf_v0::custom_command(int argc, char *argv[])
 	// struct imu_raw *imu = &myImu;
 	int n_count = 0;
 
+
+	// create a file handler
+	file file_p;
+	char file_path[52] = "/mnt/fs/mtd_mainstorage/ekf_log.txt";
+	int ret = 0;
+
 	if (argc > 2) {
 		PX4_INFO("ext argument %s, %s \n", argv[1], argv[2]);
 
@@ -89,7 +95,7 @@ int ekf_v0::custom_command(int argc, char *argv[])
 
 						//  struct Px4 *imu;
 
-						for (int j = 0; j< 3; j++) {
+						for (int j = 0; j < 3; j++) {
 							myImu.acc_mps2[j] = (float)raw.accelerometer_m_s2[j];
 							myImu.gyr_rps[j] = (float)raw.gyro_rad[j];
 						}
@@ -101,6 +107,26 @@ int ekf_v0::custom_command(int argc, char *argv[])
 							(double)raw.accelerometer_m_s2[0], (double)raw.accelerometer_m_s2[1], (double)raw.accelerometer_m_s2[2],
 							(double)raw.gyro_rad[0], (double)raw.gyro_rad[1], (double)raw.gyro_rad[2], (double)brd_att.roll, (double)brd_att.pitch);
 						PX4_INFO("%s", str);
+
+						ret = file_open(&file_p, file_path, O_RDWR | O_CREAT | O_APPEND);
+
+						if (!ret) {
+							PX4_INFO(" File %s created and opened with read write access.", file_path);
+							ret = file_write(&file_p, str, strlen(str));
+
+							if (ret < 0) {
+								PX4_INFO(" Write operation failure.");
+								file_close(&file_p);
+
+							} else {
+								PX4_INFO(" %i bytes was written.", ret);
+								file_close(&file_p);
+							}
+
+						} else {
+							PX4_WARN("File %s creation failure.", file_path);
+						}
+
 					}
 
 				} else {
@@ -120,6 +146,24 @@ int ekf_v0::custom_command(int argc, char *argv[])
 						(double)raw.accelerometer_m_s2[0], (double)raw.accelerometer_m_s2[1], (double)raw.accelerometer_m_s2[2],
 						(double)raw.gyro_rad[0], (double)raw.gyro_rad[1], (double)raw.gyro_rad[2], (double)brd_att.roll, (double)brd_att.pitch);
 					PX4_INFO("%s", str);
+					ret = file_open(&file_p, file_path, O_RDWR | O_CREAT | O_APPEND);
+
+					if (!ret) {
+						PX4_INFO(" File %s created and opened with read write access.", file_path);
+						ret = file_write(&file_p, str, strlen(str));
+
+						if (ret < 0) {
+							PX4_INFO(" Write operation failure.");
+							file_close(&file_p);
+
+						} else {
+							PX4_INFO(" %i bytes was written.", ret);
+							file_close(&file_p);
+						}
+
+					} else {
+						PX4_WARN("File %s creation failure.", file_path);
+					}
 				}
 
 				// for (int i = 0; i < 3; i++) {
@@ -142,8 +186,6 @@ int ekf_v0::custom_command(int argc, char *argv[])
 				// 	// j = 0;
 				// }
 			}
-
-			// close(uart);
 		}
 
 		return 0;

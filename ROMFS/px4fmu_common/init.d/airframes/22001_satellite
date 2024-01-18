@@ -1,0 +1,17 @@
+#!/bin/sh
+#
+# @name PHI-Satellite
+#
+# @type PHI
+# @class Satellite
+#
+# @maintainer Antarikchya Pratisthan Nepal
+#
+# @board px4_fmu-v2 exclude
+# @board bitcraze_crazyflie exclude
+#
+
+param set-defualt MAY_TYPE 8 #uncontrolled vehicle MAV type for now
+param set-default CA_AIRFRAME 9 #custom airframe parameter
+param set-default SYS_HAS_GPS 0 #bypass GPS calibration/sensor selection part
+

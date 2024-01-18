@@ -186,9 +186,9 @@ int mt25ql_attach(mtd_instance_s &instance)
 
 	/* start the MT25QL driver, attempt 10 times */
 
-	int spi_speed_mhz = 12;
+	int spi_speed_mhz = 21;
 
-	for (int i = 0; i < 12; i++) {
+	for (int i = 0; i < 21; i++) {
 		/* initialize the right spi */
 		struct spi_dev_s *spi = px4_spibus_initialize(px4_find_spi_bus(instance.devid));
 
@@ -212,7 +212,6 @@ int mt25ql_attach(mtd_instance_s &instance)
 			if (i > 0) {
 				PX4_WARN("mtd needed %d attempts to attach", i + 1);
 			}
-
 			break;
 		}
 
@@ -452,7 +451,7 @@ memoryout:
 		/* Now create MTD FLASH partitions */
 
 		char blockname[32];
-		char mount_point[42];
+		char mount_point[52];
 
 		unsigned long offset;
 		unsigned part;
@@ -505,7 +504,9 @@ memoryout:
 					goto errout;
 				}
 
-				snprintf(mount_point, sizeof(mount_point), "/mnt%s", instances[i]->partition_names[part]);
+				// snprintf(mount_point, sizeof(mount_point), "/mnt%s", instances[i]->partition_names[part]);
+				memset(mount_point, '\n', sizeof(mount_point));
+				sprintf(mount_point, "mnt%s",instances[i]->partition_names[part]);
 				rv = nx_mount(blockname, mount_point, "littlefs", 0, "");
 				printf("nx_mount: blockname: %s partition: %s mount_point: %s\n", blockname, instances[i]->partition_names[part],
 				       mount_point);

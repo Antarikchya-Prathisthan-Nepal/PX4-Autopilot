@@ -58,9 +58,9 @@ __EXPORT bool board_has_bus(enum board_bus_types type, uint32_t bus)
 
 	switch (type) {
 	case BOARD_SPI_BUS:
-#ifdef CONFIG_STM32_SPI4
-		rv = bus != 4 || (stm32_gpioread(GPIO_8266_GPIO2) == 0);
-#endif /* CONFIG_STM32_SPI4 */
+// #ifdef CONFIG_STM32_SPI4
+// 		rv = bus != 4 || (stm32_gpioread(GPIO_8266_GPIO2) == 0);
+// #endif /* CONFIG_STM32_SPI4 */
 		break;
 
 	case BOARD_I2C_BUS:
@@ -68,6 +68,5 @@ __EXPORT bool board_has_bus(enum board_bus_types type, uint32_t bus)
 
 	default: break;
 	}
-
 	return rv;
 }
