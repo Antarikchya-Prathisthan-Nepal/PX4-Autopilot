@@ -1,6 +1,6 @@
 /****************************************************************************
  *
- *   Copyright (c) 2022 PX4 Development Team. All rights reserved.
+ *   Copyright (c) 2023 PX4 Development Team. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -31,31 +31,61 @@
  *
  ****************************************************************************/
 
-#include "missionCheck.hpp"
+/**
+ * @file MulticopterThrowLaunch.hpp
+ *
+ * Changes to manage a takeoff of a multicopter by manually throwing it into the air.
+ *
+ * @author Michał Barciś <mbarcis@mbarcis.net>
+ */
 
-void MissionChecks::checkAndReport(const Context &context, Report &reporter)
+#pragma once
+
+#include <lib/matrix/matrix/math.hpp>
+#include <px4_platform_common/module_params.h>
+
+#include <uORB/Subscription.hpp>
+#include <uORB/topics/vehicle_local_position.h>
+
+class MulticopterThrowLaunch : public ModuleParams
 {
-	reporter.failsafeFlags().mission_failure = false;
-	reporter.failsafeFlags().auto_mission_missing = true;
-	mission_result_s mission_result;
+public:
+	explicit MulticopterThrowLaunch(ModuleParams *parent);
+	~MulticopterThrowLaunch() override = default;
 
-	if (_mission_result_sub.copy(&mission_result) && mission_result.valid) {
-		reporter.failsafeFlags().mission_failure = mission_result.failure;
-
-		if (reporter.failsafeFlags().mission_failure) {
-			// navigator sends out the exact reason
-			/* EVENT
-			 */
-			reporter.armingCheckFailure(NavModes::All, health_component_t::system,
-						    events::ID("check_mission_failure"),
-						    events::Log::Error, "Mission cannot be completed");
-
-			if (reporter.mavlink_log_pub()) {
-				mavlink_log_critical(reporter.mavlink_log_pub(), "Mission cannot be completed\t");
-			}
-		}
-
-		// This is a mode requirement, no need to report
-		reporter.failsafeFlags().auto_mission_missing = mission_result.mission_id <= 0;
+	/**
+	 * @return false if feature disabled or already flying
+	 */
+	bool isThrowLaunchInProgress() const
+	{
+		return _throw_launch_state != ThrowLaunchState::DISABLED
+		       && _throw_launch_state != ThrowLaunchState::FLYING;
 	}
-}
+
+	bool isReadyToThrow() const { return _throw_launch_state == ThrowLaunchState::ARMED; }
+
+	/**
+	 * Main update of the state
+	 * @param armed true if vehicle is armed
+	 */
+	void update(const bool armed);
+
+	enum class ThrowLaunchState {
+		DISABLED = 0,
+		IDLE = 1,
+		ARMED = 2,
+		UNSAFE = 3,
+		FLYING = 4
+	};
+
+private:
+	uORB::Subscription _vehicle_local_position_sub{ORB_ID(vehicle_local_position)};
+
+	ThrowLaunchState _throw_launch_state{ThrowLaunchState::DISABLED};
+	matrix::Vector3f _last_velocity{};
+
+	DEFINE_PARAMETERS(
+		(ParamBool<px4::params::COM_THROW_EN>) _param_com_throw_en,
+		(ParamFloat<px4::params::COM_THROW_SPEED>) _param_com_throw_min_speed
+	);
+};

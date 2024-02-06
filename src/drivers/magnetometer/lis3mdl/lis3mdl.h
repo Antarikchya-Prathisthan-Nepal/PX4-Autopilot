@@ -47,7 +47,7 @@
 #include <lib/drivers/magnetometer/PX4Magnetometer.hpp>
 
 
-# include </home/user_/Documents/PX4_WORKSPACE/PX4-Autopilot/platforms/common/include/px4_platform_common/spi.h>
+# include </home/sushant/PX4-Autopilot/platforms/common/include/px4_platform_common/spi.h>
 
 # include <drivers/device/spi.h>
 
