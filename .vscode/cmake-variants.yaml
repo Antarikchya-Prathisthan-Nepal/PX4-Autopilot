@@ -106,6 +106,11 @@ CONFIG:
       buildType: MinSizeRel
       settings:
         CONFIG: apn_phi-v1_default
+    apn_cubus-v1_default:
+      short: apn_cubus-v1
+      buildType: MinSizeRel
+      settings:
+        CONFIG: apncubus-v1_default
     ark_can-flow_default:
       short: ark_can-flow_default
       buildType: MinSizeRel

@@ -44,16 +44,16 @@ px4_add_module(
 	COMPILE_FLAGS
 	SRCS
 		accelerometer_calibration.cpp
-		airspeed_calibration.cpp
-		baro_calibration.cpp
+		# airspeed_calibration.cpp
+		# baro_calibration.cpp
 		calibration_routines.cpp
 		Commander.cpp
 		commander_helper.cpp
-		esc_calibration.cpp
+		# esc_calibration.cpp
 		factory_calibration_storage.cpp
 		gyro_calibration.cpp
-		HomePosition.cpp
-		ModeManagement.cpp
+		# HomePosition.cpp
+		# ModeManagement.cpp
 		level_calibration.cpp
 		lm_fit.cpp
 		mag_calibration.cpp
@@ -66,15 +66,16 @@ px4_add_module(
 	DEPENDS
 		ArmAuthorization
 		circuit_breaker
-		failsafe
+		# failsafe
 		failure_detector
 		geo
 		health_and_arming_checks
 		hysteresis
-		mode_util
+		# mode_util
 		MulticopterThrowLaunch
 		sensor_calibration
 		world_magnetic_model
+        atmosphere
 	)
 
 px4_add_unit_gtest(SRC mag_calibration_test.cpp LINKLIBS modules__commander)

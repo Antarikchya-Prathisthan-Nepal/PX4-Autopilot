@@ -1,0 +1,5 @@
+menuconfig USER_MT25QL_FLASH
+	bool "mt25ql_flash"
+	default n
+	---help---
+		user support for operating flash memory

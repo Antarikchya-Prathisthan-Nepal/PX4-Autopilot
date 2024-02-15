@@ -248,12 +248,21 @@ int ekf_v0::custom_command(int argc, char *argv[])
 
 		return 0;
 
+	} else if (strcmp(argv[0], "Read_data_log") == 0) {
+		PX4_INFO("Reading EKF data log from flash."); f
+		ret  = file_open(&file, file_path, O_RDONLY);
+
+		if (!ret) {
+			ret = file_read(&file_p,);
+		}
+
+
 	} else {
 		// PX4_INFO(strcmp(argv[0],"temperature"));
 		PX4_WARN("Unknown cmd");
 	}
 
-	// close(uart);
+// close(uart);
 
 	return print_usage("unknown command");
 }
